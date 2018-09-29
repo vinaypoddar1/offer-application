@@ -1,4 +1,4 @@
-package com.heavenhr.event;
+package com.heavenhr.events;
 
 import org.springframework.context.ApplicationEvent;
 

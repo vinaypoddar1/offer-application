@@ -5,9 +5,9 @@ import java.io.Serializable;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
+import com.heavenhr.utils.Constants;
 import com.heavenhr.utils.Status;
 import com.heavenhr.validations.UniqueApplication;
-import com.heavenhr.validations.ValidOfferTitle;
 
 @UniqueApplication
 public class ApplicationDto implements Serializable {
@@ -15,8 +15,8 @@ public class ApplicationDto implements Serializable {
 	private static final long serialVersionUID = -191815400508365317L;
 	
 	private String offer; 			// Composite
-	@NotBlank(message = "Email must mot be blank")
-	@Email(message = "Email format not correct")
+	@NotBlank(message = Constants.EMAIL_MUST_MOT_BE_BLANK)
+	@Email(message = Constants.EMAIL_FORMAT_NOT_CORRECT)
 	private String candidateEmail; 	// unique
 	private String resumeText;
 	private Status applicationStatus = Status.APPLIED;

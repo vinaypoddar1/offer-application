@@ -6,7 +6,6 @@ import java.util.Map;
 
 public class Offer {
 
-	// private Long id;
 	private String jobTitle; // unique
 	private Date startDate;
 	private Integer numberOfApplications;
@@ -23,14 +22,6 @@ public class Offer {
 		this.startDate = startDate;
 		this.applications = applications;
 	}
-
-	// public Long getId() {
-	// return id;
-	// }
-	//
-	// public void setId(Long id) {
-	// this.id = id;
-	// }
 
 	public String getJobTitle() {
 		return jobTitle;

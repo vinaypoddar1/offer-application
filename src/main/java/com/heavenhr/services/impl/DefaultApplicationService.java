@@ -12,12 +12,13 @@ import org.springframework.stereotype.Service;
 import com.heavenhr.dtos.ApplicationDto;
 import com.heavenhr.entities.Application;
 import com.heavenhr.entities.Offer;
-import com.heavenhr.event.StatusUpdateEvent;
+import com.heavenhr.events.StatusUpdateEvent;
 import com.heavenhr.exceptions.InvalidApplicantInfoException;
 import com.heavenhr.exceptions.InvalidOfferException;
 import com.heavenhr.exceptions.NoContentException;
-import com.heavenhr.repository.OfferRepository;
+import com.heavenhr.repositories.OfferRepository;
 import com.heavenhr.services.ApplicationService;
+import com.heavenhr.utils.Constants;
 import com.heavenhr.utils.Status;
 
 @Service
@@ -42,7 +43,7 @@ public class DefaultApplicationService implements ApplicationService, Applicatio
 					applicationDto.getApplicationStatus());
 			offerOptional.get().getApplications().put(application.getCandidateEmail(), application);
 		} else {
-			throw new InvalidOfferException("Invalid offer title " + applicationDto.getOfferTitle());
+			throw new InvalidOfferException(Constants.INVALID_OFFER_TITLE + applicationDto.getOfferTitle());
 		}
 
 	}
@@ -53,9 +54,9 @@ public class DefaultApplicationService implements ApplicationService, Applicatio
 		Optional<Offer> offerOptional = this.offerRepository.getOffer(offerTitle);
 		if(offerOptional.isPresent()) {
 			application = offerOptional.map(offer -> offer.getApplications().get(email))
-					.orElseThrow(() -> new NoContentException("No data found for email " + email));
+					.orElseThrow(() -> new NoContentException(Constants.NO_DATA_FOUND_FOR_EMAIL + email));
 		} else {
-			throw new InvalidOfferException("Invalid offer title " + offerTitle);
+			throw new InvalidOfferException(Constants.INVALID_OFFER_TITLE + offerTitle);
 		}
 		return new ApplicationDto(application.getOffer(), application.getCandidateEmail(), application.getResumeText(),
 				application.getApplicationStatus());
@@ -68,7 +69,7 @@ public class DefaultApplicationService implements ApplicationService, Applicatio
 						.map(app -> new ApplicationDto(app.getOffer(), app.getCandidateEmail(), app.getResumeText(),
 								app.getApplicationStatus()))
 						.collect(Collectors.toList()))
-				.orElseThrow(() -> new InvalidOfferException("Invalid offer title " + offerTitle));
+				.orElseThrow(() -> new InvalidOfferException(Constants.INVALID_OFFER_TITLE + offerTitle));
 	}
 
 	@Override
@@ -82,10 +83,10 @@ public class DefaultApplicationService implements ApplicationService, Applicatio
 				applicationOptional.get().setApplicationStatus(status);
 				this.publisher.publishEvent(new StatusUpdateEvent(this, offerOptional.get().getJobTitle(), applicationOptional.get().getCandidateEmail(), status));
 			} else {
-				throw new InvalidApplicantInfoException("Invalid email for applicant " + email);
+				throw new InvalidApplicantInfoException(Constants.INVALID_EMAIL_FOR_APPLICANT + email);
 			}
 		} else {
-			throw new InvalidOfferException("Invalid offer title " + offerTitle);
+			throw new InvalidOfferException(Constants.INVALID_OFFER_TITLE + offerTitle);
 		}
 	}
 

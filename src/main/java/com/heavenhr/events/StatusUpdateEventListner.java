@@ -1,4 +1,4 @@
-package com.heavenhr.event;
+package com.heavenhr.events;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

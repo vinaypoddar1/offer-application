@@ -12,13 +12,15 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
+import com.heavenhr.utils.Constants;
+
 @Documented
 @Retention(RUNTIME)
 @Target({FIELD, ANNOTATION_TYPE,PARAMETER})
 @Constraint(validatedBy = {UniqueTitleValidator.class})
 public @interface UniqueTitle {
 	
-	String message() default "Duplicate Offer Title";
+	String message() default Constants.DUPLICATE_OFFER_TITLE;
 	
 	Class<?>[] groups() default {};
 	

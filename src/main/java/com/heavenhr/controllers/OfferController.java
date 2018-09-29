@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,6 +25,7 @@ import com.heavenhr.exceptions.InvalidOfferException;
 import com.heavenhr.exceptions.NoContentException;
 import com.heavenhr.services.ApplicationService;
 import com.heavenhr.services.OfferService;
+import com.heavenhr.utils.Constants;
 
 @RestController
 @RequestMapping(value = "/heavenHR/v1/offers", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -37,7 +37,7 @@ public class OfferController {
 	@Autowired
 	private ApplicationService applicationService;
 
-	@ResponseStatus(value = HttpStatus.CREATED, reason = "Offer Created Successfully")
+	@ResponseStatus(value = HttpStatus.CREATED, reason = Constants.OFFER_CREATED_SUCCESSFULLY)
 	@PostMapping
 	public void createOffer(@Valid @RequestBody OfferDto offer) {
 		this.offerService.createOffer(offer);
@@ -65,14 +65,14 @@ public class OfferController {
 		return ResponseEntity.ok().body(this.applicationService.getApplication(offerTitle, candidate.getEmail()));
 	}
 
-	@ResponseStatus(value = HttpStatus.CREATED, reason = "Application Created Successfully")
+	@ResponseStatus(value = HttpStatus.CREATED, reason = Constants.APPLICATION_CREATED_SUCCESSFULLY)
 	@PostMapping("/{offerTitle}/applications")
 	public void applyOffer(@Valid @RequestBody ApplicationDto application, @PathVariable String offerTitle)
 			throws InvalidOfferException {
 		this.applicationService.createApplication(application);
 	}
 
-	@ResponseStatus(value = HttpStatus.OK, reason = "Application Status Updated Successfully")
+	@ResponseStatus(value = HttpStatus.OK, reason = Constants.APPLICATION_STATUS_UPDATE_SUCCESSFULLY)
 	@PutMapping("/{offerTitle}/applications/update")
 	public void updateStatus(@Valid @RequestBody CandidateDto candidate, @PathVariable String offerTitle)
 			throws InvalidOfferException, InvalidApplicantInfoException {

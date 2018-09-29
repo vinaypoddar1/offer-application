@@ -9,8 +9,9 @@ import org.springframework.stereotype.Service;
 import com.heavenhr.dtos.OfferDto;
 import com.heavenhr.entities.Offer;
 import com.heavenhr.exceptions.NoContentException;
-import com.heavenhr.repository.OfferRepository;
+import com.heavenhr.repositories.OfferRepository;
 import com.heavenhr.services.OfferService;
+import com.heavenhr.utils.Constants;
 
 @Service
 public class DefaultOfferService implements OfferService {
@@ -29,7 +30,7 @@ public class DefaultOfferService implements OfferService {
 		return this.offerRepository.getOffer(offerTitle)
 				.map(offer -> new OfferDto(offer.getJobTitle(), offer.getStartDate(),
 						offer.getApplications().size()))
-				.orElseThrow(() -> new NoContentException("No Offer available with name " + offerTitle));
+				.orElseThrow(() -> new NoContentException(Constants.NO_OFFER_AVAILABLE_WITH_NAME + offerTitle));
 	}
 
 	@Override

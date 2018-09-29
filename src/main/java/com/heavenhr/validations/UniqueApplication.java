@@ -10,13 +10,15 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
+import com.heavenhr.utils.Constants;
+
 @Documented
 @Retention(RUNTIME)
 @Target(TYPE)
 @Constraint(validatedBy = { UniqueApplicationValidator.class })
 public @interface UniqueApplication {
 
-	String message() default "You have already applied for the offer!";
+	String message() default Constants.ALREADY_APPLIED;
 
 	Class<?>[] groups() default {};
 

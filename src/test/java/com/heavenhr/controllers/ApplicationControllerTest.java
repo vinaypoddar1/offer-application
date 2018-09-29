@@ -24,6 +24,7 @@ import com.heavenhr.controllers.ApplicationController;
 import com.heavenhr.dtos.ApplicationDto;
 import com.heavenhr.dtos.CandidateDto;
 import com.heavenhr.services.ApplicationService;
+import com.heavenhr.utils.Constants;
 import com.heavenhr.utils.Status;
 
 @RunWith(SpringRunner.class)
@@ -41,16 +42,12 @@ public class ApplicationControllerTest {
 	@Test
 	public void getApplicationsByEmail_whenEmailValid_thenOk() throws Exception {
 
-		String OfferTitle = "Java-Backend";
-		String email = "paul@aol.com";
-		String resumeText = "Sample Java Resume";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
 
-		ApplicationDto application = new ApplicationDto(OfferTitle, email, resumeText, Status.HIRED);
+		ApplicationDto application = new ApplicationDto(Constants.VALID_OFFER_TITLE_JAVA_BACKEND, Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND, Constants.SAMPLE_RESUME_TEXT_FOR_JAVA_BACKEND, Status.HIRED);
 
-		given(this.applicationService.getApplicatonsByEmail(email)).willReturn(Arrays.asList(application));
+		given(this.applicationService.getApplicatonsByEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND)).willReturn(Arrays.asList(application));
 
 		mvc.perform(post("/heavenHR/v1/applications/email").content(mapper.writeValueAsBytes(candidate))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
@@ -64,12 +61,11 @@ public class ApplicationControllerTest {
 	@Test
 	public void getApplicationsByEmail_whenEmailValidButNotRegistered_thenOk() throws Exception {
 
-		String email = "paul@aol.com";
 
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
 
-		given(this.applicationService.getApplicatonsByEmail(email)).willReturn(Collections.emptyList());
+		given(this.applicationService.getApplicatonsByEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND)).willReturn(Collections.emptyList());
 
 		mvc.perform(post("/heavenHR/v1/applications/email").content(mapper.writeValueAsBytes(candidate))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
@@ -79,29 +75,25 @@ public class ApplicationControllerTest {
 	@Test
 	public void getApplicationsByEmail_whenEmailBlank_thenBadRequest() throws Exception {
 
-		String email = "";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.BLANK_STRING);
 
 		mvc.perform(post("/heavenHR/v1/applications/email").content(mapper.writeValueAsBytes(candidate))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.status", is("Bad Request"))).andExpect(jsonPath("$.code", is(400)))
-				.andExpect(jsonPath("$.message", is("Email must mot be blank")));
+				.andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST))).andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED)))
+				.andExpect(jsonPath("$.message", is(Constants.EMAIL_MUST_MOT_BE_BLANK)));
 	}
 
 	@Test
 	public void getApplicationsByEmail_whenEmailInValid_thenBadRequest() throws Exception {
 
-		String email = "abc123";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.INVALID_APPLICATION_EMAIL_FORMAT);
 
 		mvc.perform(post("/heavenHR/v1/applications/email").content(mapper.writeValueAsBytes(candidate))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.status", is("Bad Request"))).andExpect(jsonPath("$.code", is(400)))
-				.andExpect(jsonPath("$.message", is("Email format not correct")));
+				.andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST))).andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED)))
+				.andExpect(jsonPath("$.message", is(Constants.EMAIL_FORMAT_NOT_CORRECT)));
 	}
 
 }

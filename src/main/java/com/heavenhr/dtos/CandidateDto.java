@@ -3,12 +3,13 @@ package com.heavenhr.dtos;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
+import com.heavenhr.utils.Constants;
 import com.heavenhr.utils.Status;
 
 public class CandidateDto {
 	
-	@NotBlank(message = "Email must mot be blank")
-	@Email(message = "Email format not correct")
+	@NotBlank(message = Constants.EMAIL_MUST_MOT_BE_BLANK)
+	@Email(message = Constants.EMAIL_FORMAT_NOT_CORRECT)
 	private String email;
 	private Status status;
 

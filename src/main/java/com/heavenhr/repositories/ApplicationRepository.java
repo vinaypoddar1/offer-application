@@ -1,4 +1,4 @@
-package com.heavenhr.repository;
+package com.heavenhr.repositories;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -11,13 +11,15 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
+import com.heavenhr.utils.Constants;
+
 @Documented
 @Retention(RUNTIME)
 @Target({PARAMETER, FIELD})
 @Constraint(validatedBy = {OfferTitleValidator.class})
 public @interface ValidOfferTitle {
 	
-	String message() default "Offer Title Not Valid";
+	String message() default Constants.OFFER_TITLE_NOT_VALID;
 	
 	Class<?>[] groups() default {};
 	

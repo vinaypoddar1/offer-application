@@ -1,5 +1,7 @@
-package com.heavenhr.event;
+package com.heavenhr.events;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -8,8 +10,10 @@ public class StatusUpdateEventPublisher {
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 	
+	Logger logger = LoggerFactory.getLogger(StatusUpdateEventListner.class);
+	
 	public void doStuffAndPublishAnEvent(final String message) {
-        System.out.println("Publishing custom event. ");
+		logger.info("Publishing custom event. ");
         StatusUpdateEvent statusUpdateEvent = new StatusUpdateEvent(this);
         applicationEventPublisher.publishEvent(statusUpdateEvent);
     }

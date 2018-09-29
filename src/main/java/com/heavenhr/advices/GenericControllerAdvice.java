@@ -1,4 +1,4 @@
-package com.heavenhr.advice;
+package com.heavenhr.advices;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;

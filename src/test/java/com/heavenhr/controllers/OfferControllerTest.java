@@ -34,6 +34,7 @@ import com.heavenhr.exceptions.InvalidOfferException;
 import com.heavenhr.exceptions.NoContentException;
 import com.heavenhr.services.ApplicationService;
 import com.heavenhr.services.OfferService;
+import com.heavenhr.utils.Constants;
 import com.heavenhr.utils.Status;
 
 @RunWith(SpringRunner.class)
@@ -54,7 +55,7 @@ public class OfferControllerTest {
 	@Test
 	public void createOffer_whenValidInput_thenCreated() throws Exception {
 
-		OfferDto javaBackend = new OfferDto("Java-Backend", new Date(), 2);
+		OfferDto javaBackend = new OfferDto(Constants.VALID_OFFER_TITLE_JAVA_BACKEND, new Date(), 2);
 
 		mvc.perform(post("/heavenHR/v1/offers").contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsBytes(javaBackend))).andExpect(status().isCreated());
@@ -63,31 +64,31 @@ public class OfferControllerTest {
 	@Test
 	public void createOffer_whenBlankTitleInput_thenBadRequest() throws Exception {
 
-		OfferDto javaBackend = new OfferDto("", new Date(), 2);
+		OfferDto javaBackend = new OfferDto(Constants.BLANK_STRING, new Date(), 2);
 
 		mvc.perform(post("/heavenHR/v1/offers").contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsBytes(javaBackend))).andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.status", is("Bad Request"))).andExpect(jsonPath("$.code", is(400)))
-				.andExpect(jsonPath("$.message", is("Title must not be blank")));
+				.andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST))).andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED)))
+				.andExpect(jsonPath("$.message", is(Constants.TITLE_MUST_NOT_BE_BLANK)));
 	}
 
 	@Test
 	public void createOffer_whenDuplicateTitleInput_thenBadRequest() throws Exception {
 
-		given(this.offerService.isOfferExists("Java-Backend")).willReturn(true);
+		given(this.offerService.isOfferExists(Constants.VALID_OFFER_TITLE_JAVA_BACKEND)).willReturn(true);
 
-		OfferDto javaBackend = new OfferDto("Java-Backend", new Date(), 2);
+		OfferDto javaBackend = new OfferDto(Constants.VALID_OFFER_TITLE_JAVA_BACKEND, new Date(), 2);
 
 		mvc.perform(post("/heavenHR/v1/offers").contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsBytes(javaBackend))).andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.status", is("Bad Request"))).andExpect(jsonPath("$.code", is(400)))
-				.andExpect(jsonPath("$.message", is("Duplicate Offer Title")));
+				.andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST))).andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED)))
+				.andExpect(jsonPath("$.message", is(Constants.DUPLICATE_OFFER_TITLE)));
 	}
 
 	@Test
 	public void getOffers_whenList_thenOk() throws Exception {
 
-		OfferDto javaBackend = new OfferDto("Java-Backend", new Date(), 2);
+		OfferDto javaBackend = new OfferDto(Constants.VALID_OFFER_TITLE_JAVA_BACKEND, new Date(), 2);
 
 		List<OfferDto> allEmployees = Arrays.asList(javaBackend);
 
@@ -106,31 +107,29 @@ public class OfferControllerTest {
 		given(this.offerService.getOffers()).willReturn(Collections.emptyList());
 
 		mvc.perform(get("/heavenHR/v1/offers").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(jsonPath("$", hasSize(0)))
+				.andExpect(jsonPath("$", hasSize(Constants.ZERO)))
 				 .andExpect(jsonPath("$", is(Collections.emptyList())));
 	}
 
 	@Test
 	public void readSingleOffer_whenNoOfferPresent_thenNotFound() throws Exception {
 
-		String offerTitle = "Python";
-		given(this.offerService.readOffer(offerTitle))
-				.willThrow(new NoContentException("No Offer available with name " + offerTitle));
+		given(this.offerService.readOffer(Constants.INVALID_OFFER_TITLE_PYTHON))
+				.willThrow(new NoContentException(Constants.NO_OFFER_AVAILABLE_WITH_NAME + Constants.INVALID_OFFER_TITLE_PYTHON));
 
-		mvc.perform(get("/heavenHR/v1/offers/" + offerTitle).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isNotFound()).andExpect(jsonPath("$.status", is("Not Found")))
-				.andExpect(jsonPath("$.code", is(404)))
-				.andExpect(jsonPath("$.message", is("No Offer available with name " + offerTitle)));
+		mvc.perform(get("/heavenHR/v1/offers/" + Constants.INVALID_OFFER_TITLE_PYTHON).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound()).andExpect(jsonPath("$.status", is(Constants.NOT_FOUND)))
+				.andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED_FOUR)))
+				.andExpect(jsonPath("$.message", is(Constants.NO_OFFER_AVAILABLE_WITH_NAME + Constants.INVALID_OFFER_TITLE_PYTHON)));
 	}
 
 	@Test
 	public void readSingleOffer_whenOfferPresent_thenOK() throws Exception {
 
-		String offerTitle = "Python";
-		OfferDto offer = new OfferDto(offerTitle, new Date(), 3);
-		given(this.offerService.readOffer(offerTitle)).willReturn(offer);
+		OfferDto offer = new OfferDto(Constants.INVALID_OFFER_TITLE_PYTHON, new Date(), 3);
+		given(this.offerService.readOffer(Constants.INVALID_OFFER_TITLE_PYTHON)).willReturn(offer);
 
-		mvc.perform(get("/heavenHR/v1/offers/" + offerTitle).contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/heavenHR/v1/offers/" + Constants.INVALID_OFFER_TITLE_PYTHON).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.jobTitle", is(offer.getJobTitle())))
 				// .andExpect(jsonPath("$.startDate", is(offer.getStartDate())))
 				.andExpect(jsonPath("$.numberOfApplications", is(offer.getNumberOfApplications())));
@@ -139,13 +138,12 @@ public class OfferControllerTest {
 	@Test
 	public void applyOffer_whenValidParameters_thenOK() throws Exception {
 
-		String offerTitle = "Java-Backend";
 		ApplicationDto application = new ApplicationDto();
-		application.setOffer(offerTitle);
-		application.setCandidateEmail("paul@aol.com");
-		application.setResumeText("Sample Java Resume");
+		application.setOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND);
+		application.setCandidateEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
+		application.setResumeText(Constants.SAMPLE_RESUME_TEXT_FOR_JAVA_BACKEND);
 
-		mvc.perform(post("/heavenHR/v1/offers/" + offerTitle + "/applications")
+		mvc.perform(post("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications")
 				.content(mapper.writeValueAsBytes(application)).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isCreated());
 	}
@@ -153,80 +151,75 @@ public class OfferControllerTest {
 	@Test
 	public void applyOffer_whenWrongEmail_thenBadRequest() throws Exception {
 
-		String offerTitle = "Java-Backend";
 		ApplicationDto application = new ApplicationDto();
-		application.setOffer(offerTitle);
-		application.setCandidateEmail("wrongemailformat");
-		application.setResumeText("Sample Java Resume");
+		application.setOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND);
+		application.setCandidateEmail(Constants.INVALID_APPLICATION_EMAIL_FORMAT);
+		application.setResumeText(Constants.SAMPLE_RESUME_TEXT_FOR_JAVA_BACKEND);
 
-		mvc.perform(post("/heavenHR/v1/offers/" + offerTitle + "/applications")
+		mvc.perform(post("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications")
 				.content(mapper.writeValueAsBytes(application)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.message", is("Email format not correct")));
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.message", is(Constants.EMAIL_FORMAT_NOT_CORRECT)));
 	}
 
 	@Test
 	public void applyOffer_whenBlankEmail_thenBadRequest() throws Exception {
 
-		String offerTitle = "Java-Backend";
 		ApplicationDto application = new ApplicationDto();
-		application.setOffer(offerTitle);
+		application.setOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND);
 		// application.setCandidateEmail(null);
-		application.setCandidateEmail("");
-		application.setResumeText("Sample Java Resume");
+		application.setCandidateEmail(Constants.BLANK_STRING);
+		application.setResumeText(Constants.SAMPLE_RESUME_TEXT_FOR_JAVA_BACKEND);
 
-		mvc.perform(post("/heavenHR/v1/offers/" + offerTitle + "/applications")
+		mvc.perform(post("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications")
 				.content(mapper.writeValueAsBytes(application)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.message", is("Email must mot be blank")));
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.message", is(Constants.EMAIL_MUST_MOT_BE_BLANK)));
 	}
 
 	// @Test
 	public void applyOffer_whenOfferInValid_thenInvalidOfferException() throws Exception {
 
-		String offerTitle = "Java-Backend";
 		ApplicationDto application = new ApplicationDto();
-		application.setOffer(offerTitle);
-		application.setCandidateEmail("paul@aol.com");
-		application.setResumeText("Sample Java Resume");
+		application.setOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND);
+		application.setCandidateEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
+		application.setResumeText(Constants.SAMPLE_RESUME_TEXT_FOR_JAVA_BACKEND);
 
-		doThrow(new InvalidOfferException("Invalid offer title " + offerTitle)).when(this.applicationService)
+		doThrow(new InvalidOfferException(Constants.INVALID_OFFER_TITLE + Constants.VALID_OFFER_TITLE_JAVA_BACKEND)).when(this.applicationService)
 				.createApplication(application);
 
-		mvc.perform(post("/heavenHR/v1/offers/" + offerTitle + "/applications")
+		mvc.perform(post("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications")
 				.content(mapper.writeValueAsBytes(application)).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.message", is("Invalid offer title " + offerTitle)));
+				.andExpect(jsonPath("$.message", is(Constants.INVALID_OFFER_TITLE + Constants.VALID_OFFER_TITLE_JAVA_BACKEND)));
 	}
 
 	// @Test
 	public void applyOffer_whenApplicationNotUnique_thenBadRequest() throws Exception {
 
-		String offerTitle = "Java-Backend";
 		ApplicationDto application = new ApplicationDto();
-		application.setOffer(offerTitle);
-		application.setCandidateEmail("paul@aol.com");
-		application.setResumeText("Sample Java Resume");
+		application.setOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND);
+		application.setCandidateEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
+		application.setResumeText(Constants.SAMPLE_RESUME_TEXT_FOR_JAVA_BACKEND);
 
-		given(this.applicationService.isApplicationsExists(offerTitle, application.getCandidateEmail()))
+		given(this.applicationService.isApplicationsExists(Constants.VALID_OFFER_TITLE_JAVA_BACKEND, application.getCandidateEmail()))
 				.willReturn(true);
 
-		mvc.perform(post("/heavenHR/v1/offers/" + offerTitle + "/applications")
+		mvc.perform(post("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications")
 				.content(mapper.writeValueAsBytes(application)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.message", is("Email must mot be blank")));
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.message", is(Constants.EMAIL_MUST_MOT_BE_BLANK)));
 	}
 
 	@Test
 	public void getAllApplications_whenOfferValid_thenOk() throws Exception {
 
-		String offerTitle = "Java-Backend";
 		ApplicationDto application = new ApplicationDto();
-		application.setOffer(offerTitle);
-		application.setCandidateEmail("paul@aol.com");
-		application.setResumeText("Sample Java Resume");
+		application.setOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND);
+		application.setCandidateEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
+		application.setResumeText(Constants.SAMPLE_RESUME_TEXT_FOR_JAVA_BACKEND);
 
-		given(this.applicationService.getApplicationsByOffer(offerTitle)).willReturn(Arrays.asList(application));
+		given(this.applicationService.getApplicationsByOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND)).willReturn(Arrays.asList(application));
 
-		mvc.perform(get("/heavenHR/v1/offers/" + offerTitle + "/applications").contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1)))
+		mvc.perform(get("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(Constants.ONE)))
 				.andExpect(jsonPath("$[0].offerTitle", is(application.getOfferTitle())))
 				.andExpect(jsonPath("$[0].candidateEmail", is(application.getCandidateEmail())))
 				.andExpect(jsonPath("$[0].resumeText", is(application.getResumeText())))
@@ -236,36 +229,33 @@ public class OfferControllerTest {
 	@Test
 	public void getAllApplications_whenOfferInValid_thenOk() throws Exception {
 
-		String offerTitle = "Java-Backend";
 		ApplicationDto application = new ApplicationDto();
-		application.setOffer(offerTitle);
-		application.setCandidateEmail("paul@aol.com");
-		application.setResumeText("Sample Java Resume");
+		application.setOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND);
+		application.setCandidateEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
+		application.setResumeText(Constants.SAMPLE_RESUME_TEXT_FOR_JAVA_BACKEND);
 
-		given(this.applicationService.getApplicationsByOffer(offerTitle))
-				.willThrow(new InvalidOfferException("Invalid offer title " + offerTitle));
+		given(this.applicationService.getApplicationsByOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND))
+				.willThrow(new InvalidOfferException(Constants.INVALID_OFFER_TITLE + Constants.VALID_OFFER_TITLE_JAVA_BACKEND));
 
-		mvc.perform(get("/heavenHR/v1/offers/" + offerTitle + "/applications").contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is("Bad Request")))
-				.andExpect(jsonPath("$.code", is(400)))
-				.andExpect(jsonPath("$.message", is("Invalid offer title " + offerTitle)));
+		mvc.perform(get("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST)))
+				.andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED)))
+				.andExpect(jsonPath("$.message", is(Constants.INVALID_OFFER_TITLE + Constants.VALID_OFFER_TITLE_JAVA_BACKEND)));
 	}
 
 	@Test
 	public void getApplication_whenOfferValid_thenOk() throws Exception {
 
-		String offerTitle = "Java-Backend";
-		String email = "paul@aol.com";
 		ApplicationDto application = new ApplicationDto();
-		application.setOffer(offerTitle);
-		application.setCandidateEmail(email);
-		application.setResumeText("Sample Java Resume");
+		application.setOffer(Constants.VALID_OFFER_TITLE_JAVA_BACKEND);
+		application.setCandidateEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
+		application.setResumeText(Constants.SAMPLE_RESUME_TEXT_FOR_JAVA_BACKEND);
 
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
-		given(this.applicationService.getApplication(offerTitle, email)).willReturn(application);
+		candidate.setEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
+		given(this.applicationService.getApplication(Constants.VALID_OFFER_TITLE_JAVA_BACKEND, Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND)).willReturn(application);
 
-		mvc.perform(post("/heavenHR/v1/offers/" + offerTitle + "/applications/track")
+		mvc.perform(post("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications/track")
 				.content(mapper.writeValueAsBytes(candidate)).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.offerTitle", is(application.getOfferTitle())))
 				.andExpect(jsonPath("$.candidateEmail", is(application.getCandidateEmail())))
@@ -276,45 +266,36 @@ public class OfferControllerTest {
 	@Test
 	public void getApplication_whenEmailBlank_thenOk() throws Exception {
 
-		String offerTitle = "Java-Backend";
-		String email = "";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.BLANK_STRING);
 
-		mvc.perform(post("/heavenHR/v1/offers/" + offerTitle + "/applications/track")
+		mvc.perform(post("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications/track")
 				.content(mapper.writeValueAsBytes(candidate)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is("Bad Request")))
-				.andExpect(jsonPath("$.code", is(400))).andExpect(jsonPath("$.message", is("Email must mot be blank")));
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST)))
+				.andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED))).andExpect(jsonPath("$.message", is(Constants.EMAIL_MUST_MOT_BE_BLANK)));
 	}
 
 	@Test
 	public void getApplication_whenEmailInValid_thenBadRequest() throws Exception {
 
-		String offerTitle = "Java-Backend";
-		String email = "abc123";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.INVALID_APPLICATION_EMAIL_FORMAT);
 
-		mvc.perform(post("/heavenHR/v1/offers/" + offerTitle + "/applications/track")
+		mvc.perform(post("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications/track")
 				.content(mapper.writeValueAsBytes(candidate)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is("Bad Request")))
-				.andExpect(jsonPath("$.code", is(400)))
-				.andExpect(jsonPath("$.message", is("Email format not correct")));
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST)))
+				.andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED)))
+				.andExpect(jsonPath("$.message", is(Constants.EMAIL_FORMAT_NOT_CORRECT)));
 	}
 
 	@Test
 	public void updateApplicationStatus_whenEmailValid_thenOk() throws Exception {
 
-		String offerTitle = "Java-Backend";
-		String email = "paul@aol.com";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
 		candidate.setStatus(Status.HIRED);
 
-		mvc.perform(put("/heavenHR/v1/offers/" + offerTitle + "/applications/update")
+		mvc.perform(put("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications/update")
 				.content(mapper.writeValueAsBytes(candidate)).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 	}
@@ -322,74 +303,62 @@ public class OfferControllerTest {
 	@Test
 	public void updateApplicatioStatus_whenOfferInValid_thenBadRequest() throws Exception {
 
-		String offerTitle = "Java-Backend";
-		String email = "paul@aol.com";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
 		candidate.setStatus(Status.HIRED);
 
-		doThrow(new InvalidOfferException("Invalid offer title " + offerTitle)).when(this.applicationService)
-				.updateApplicationStatus(offerTitle, email, Status.HIRED);
+		doThrow(new InvalidOfferException(Constants.INVALID_OFFER_TITLE + Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND)).when(this.applicationService)
+				.updateApplicationStatus(Constants.VALID_OFFER_TITLE_JAVA_BACKEND, Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND, Status.HIRED);
 
-		mvc.perform(put("/heavenHR/v1/offers/" + offerTitle + "/applications/update")
+		mvc.perform(put("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications/update")
 				.content(mapper.writeValueAsBytes(candidate)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is("Bad Request")))
-				.andExpect(jsonPath("$.code", is(400)))
-				.andExpect(jsonPath("$.message", is("Invalid offer title " + offerTitle)));
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST)))
+				.andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED)))
+				.andExpect(jsonPath("$.message", is(Constants.INVALID_OFFER_TITLE + Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND)));
 	}
 
 	@Test
 	public void updateApplicatioStatus_whenEmailValidButNotRegistered_thenBadRequest() throws Exception {
 
-		String offerTitle = "Java-Backend";
-		String email = "paul@aol.com";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND);
 		candidate.setStatus(Status.HIRED);
 
-		doThrow(new InvalidApplicantInfoException("Invalid email for applicant " + email)).when(this.applicationService)
-				.updateApplicationStatus(offerTitle, email, Status.HIRED);
+		doThrow(new InvalidApplicantInfoException(Constants.INVALID_EMAIL_FOR_APPLICANT + Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND)).when(this.applicationService)
+				.updateApplicationStatus(Constants.VALID_OFFER_TITLE_JAVA_BACKEND, Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND, Status.HIRED);
 
-		mvc.perform(put("/heavenHR/v1/offers/" + offerTitle + "/applications/update")
+		mvc.perform(put("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications/update")
 				.content(mapper.writeValueAsBytes(candidate)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is("Bad Request")))
-				.andExpect(jsonPath("$.code", is(400)))
-				.andExpect(jsonPath("$.message", is("Invalid email for applicant " + email)));
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST)))
+				.andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED)))
+				.andExpect(jsonPath("$.message", is(Constants.INVALID_EMAIL_FOR_APPLICANT + Constants.VALID_APPLICATION_EMAIL_FOR_JAVA_BACKEND)));
 	}
 
 	@Test
 	public void updateApplicatioStatus_whenEmailBlank_thenBadRequest() throws Exception {
 
-		String offerTitle = "Java-Backend";
-		String email = "";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.BLANK_STRING);
 		candidate.setStatus(Status.HIRED);
 
-		mvc.perform(put("/heavenHR/v1/offers/" + offerTitle + "/applications/update")
+		mvc.perform(put("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications/update")
 				.content(mapper.writeValueAsBytes(candidate)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is("Bad Request")))
-				.andExpect(jsonPath("$.code", is(400))).andExpect(jsonPath("$.message", is("Email must mot be blank")));
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST)))
+				.andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED))).andExpect(jsonPath("$.message", is(Constants.EMAIL_MUST_MOT_BE_BLANK)));
 	}
 
 	@Test
 	public void updateApplicationStatus_whenEmailInValid_thenBadRequest() throws Exception {
 
-		String offerTitle = "Java-Backend";
-		String email = "abc123";
-
 		CandidateDto candidate = new CandidateDto();
-		candidate.setEmail(email);
+		candidate.setEmail(Constants.INVALID_APPLICATION_EMAIL_FORMAT);
 		candidate.setStatus(Status.HIRED);
 
-		mvc.perform(put("/heavenHR/v1/offers/" + offerTitle + "/applications/update")
+		mvc.perform(put("/heavenHR/v1/offers/" + Constants.VALID_OFFER_TITLE_JAVA_BACKEND + "/applications/update")
 				.content(mapper.writeValueAsBytes(candidate)).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is("Bad Request")))
-				.andExpect(jsonPath("$.code", is(400)))
-				.andExpect(jsonPath("$.message", is("Email format not correct")));
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status", is(Constants.BAD_REQUEST)))
+				.andExpect(jsonPath("$.code", is(Constants.FOUR_HUNDRED)))
+				.andExpect(jsonPath("$.message", is(Constants.EMAIL_FORMAT_NOT_CORRECT)));
 	}
 
 }
