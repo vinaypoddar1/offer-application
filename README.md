@@ -35,20 +35,13 @@ the service must communicate Json over http (REST).
 return proper status codes for the most common problems.
 the data does not have to be stored permanently, it may be handled in-memory during runtime.
 
-## Things we are looking for
+## Things we will focusing on
 
 - a description how to build and use the service
 - clean code
 - use of the spring framework and spring best practices
 - structure of the project
 - how you test your code
-
-We do not require you to build a frontend, only endpoints are relevant. 
-And we can't stress enough: we are looking for clean, structured code. If the task takes you too long, you can hard code a shortcut, mark it with a comment and it will be fine. 
-But make sure everything you hand in is well laid out and tidy!
-
-Please send a link to a repository with your solution or a file archive to tech@heavenHR.com
-
 
 ## Instructions to clone, install and run the application
 #### Requirement
